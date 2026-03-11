@@ -24,6 +24,14 @@ export async function POST(req: Request) {
         }
 
         // Validate Environment Variables
+        console.log("Environment check in LIVE:", {
+            AWS_REGION: !!process.env.AWS_REGION,
+            AWS_ACCESS_KEY_ID: !!process.env.AWS_ACCESS_KEY_ID,
+            AWS_SECRET_ACCESS_KEY: !!process.env.AWS_SECRET_ACCESS_KEY,
+            NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
+            UNSUBSCRIBE_SECRET: !!process.env.UNSUBSCRIBE_SECRET,
+        });
+
         const missingVars: string[] = [];
         if (!process.env.AWS_REGION) missingVars.push("AWS_REGION");
         if (!process.env.AWS_ACCESS_KEY_ID) missingVars.push("AWS_ACCESS_KEY_ID");
