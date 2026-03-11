@@ -24,15 +24,16 @@ export async function POST(req: Request) {
         }
 
         // Validate Environment Variables
-        const region = process.env.AWS_REGION;
-        const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-        const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-        const unsubscribeSecret = process.env.UNSUBSCRIBE_SECRET;
+        const missingVars: string[] = [];
+        if (!process.env.AWS_REGION) missingVars.push("AWS_REGION");
+        if (!process.env.AWS_ACCESS_KEY_ID) missingVars.push("AWS_ACCESS_KEY_ID");
+        if (!process.env.AWS_SECRET_ACCESS_KEY) missingVars.push("AWS_SECRET_ACCESS_KEY");
+        if (!process.env.NEXT_PUBLIC_BASE_URL) missingVars.push("NEXT_PUBLIC_BASE_URL");
+        if (!process.env.UNSUBSCRIBE_SECRET) missingVars.push("UNSUBSCRIBE_SECRET");
 
-        if (!region || !accessKeyId || !secretAccessKey || !baseUrl || !unsubscribeSecret) {
+        if (missingVars.length > 0) {
             return NextResponse.json(
-                { error: "Required configuration (AWS, Base URL, or Secret) is missing in .env.local" },
+                { error: `Missing variables on live server: ${missingVars.join(", ")}` },
                 { status: 500 }
             );
         }
@@ -62,7 +63,7 @@ export async function POST(req: Request) {
 
         // ✅ Step 2: Generate SECURE Unsubscribe Token
         const unsubscribeToken = generateUnsubscribeToken(toEmail);
-        const unsubscribeUrl = `${baseUrl}/unsubscribe?token=${unsubscribeToken}`;
+        const unsubscribeUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/unsubscribe?token=${unsubscribeToken}`;
 
         // ✅ Step 3: Generate Email HTML
         const htmlContent = renderEmailHtml(blocks, unsubscribeUrl);
